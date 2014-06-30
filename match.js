@@ -10,7 +10,6 @@ var compile = function(tokens) {
       return token + '\\b';
     }
   });
-  console.log('\\b(' + matches.join('|') + ')');
   return new RegExp('\\b(' + matches.join('|') + ')', 'i');
 };
 

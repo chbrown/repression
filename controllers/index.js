@@ -9,7 +9,7 @@ var send = require('send');
 var logger = require('loge');
 var Router = require('regex-router');
 
-var liwc = require('../liwc');
+var match = require('../match');
 var db = require('../db');
 
 var static_root = path.join(__dirname, '..', 'static');
@@ -101,7 +101,7 @@ R.post(/^\/repress/, function(req, res, m) {
     var repressions = data.map(function(datum) {
       // returns a list of booleans: whether or not to show the given post
       var string = String(datum);
-      if (liwc.match(string)[repress_category]) {
+      if (match.match(string)[repress_category]) {
         repressed_contents.push(string);
         return true;
       }
