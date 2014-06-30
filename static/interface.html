@@ -14,10 +14,10 @@
     // ev.data is an array of {id: '_0_someElementId', text: 'Look, a kitten!'}
     if (Array.isArray(ev.data)) {
       var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/repression/repress');
       xhr.setRequestHeader('X-UserID', query.user_id);
       xhr.setRequestHeader('X-Repress', query.repress);
       xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.open('GET', '/repression/repress');
       xhr.onload = function(ev) {
         var json_string = xhr.responseText;
         var repressions = JSON.parse(json_string);
