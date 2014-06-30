@@ -91,9 +91,9 @@ Given a JSON list of strings, determine which of them should be repressed.
 
 */
 R.post(/^\/repress/, function(req, res, m) {
-  var user_id = req.headers['X-UserID'];
-  var repress_category = req.headers['X-Repress'];
-  req.readToEnd(function(err, data) {
+  var user_id = req.headers['x-userid'];
+  var repress_category = req.headers['x-repress'];
+  req.readData(function(err, data) {
     if (err) return res.die(err);
     if (!Array.isArray(data)) return res.die('/repress only accepts an array of strings');
 
@@ -101,6 +101,7 @@ R.post(/^\/repress/, function(req, res, m) {
     var repressions = data.map(function(datum) {
       // returns a list of booleans: whether or not to show the given post
       var string = String(datum);
+      logger.info('matching string: %s', string, Object.keys(match.match(string)));
       if (match.match(string)[repress_category]) {
         repressed_contents.push(string);
         return true;

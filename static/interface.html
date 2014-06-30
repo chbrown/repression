@@ -11,23 +11,34 @@
   });
 
   window.addEventListener('message', function(ev) {
+    console.log('interface message', ev);
     // ev.data is an array of {id: '_0_someElementId', text: 'Look, a kitten!'}
+    var origin = ev.origin;
     if (Array.isArray(ev.data)) {
+      var data = ev.data.slice();
+      var strings = data.map(function(datum) {
+        return datum.text;
+      });
+
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/repression/repress');
+      xhr.open('POST', '/repression/repress');
       xhr.setRequestHeader('X-UserID', query.user_id);
       xhr.setRequestHeader('X-Repress', query.repress);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.onload = function(ev) {
+        console.log('xhr response', xhr.responseText);
         var json_string = xhr.responseText;
         var repressions = JSON.parse(json_string);
         for (var i = 0; i < repressions.length; i++) {
-          if (repressions[i]) {
-            parent.postMessage(ev.data[i].id, ev.origin);
+          // the response will be true for the things to leave out
+          // and false for everything else
+          if (repressions[i] == false) {
+            // i.e., element with index i is not supposed to be repressed, so show it!
+            parent.postMessage(data[i].id, origin);
           }
         }
       };
-      xhr.send(JSON.stringify(ev.data));
+      xhr.send(JSON.stringify(strings));
     }
   }, false);
   </script>
