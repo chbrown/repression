@@ -17,7 +17,7 @@
       xhr.setRequestHeader('X-UserID', query.user_id);
       xhr.setRequestHeader('X-Repress', query.repress);
       xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.open('GET', '/repress');
+      xhr.open('GET', '/repression/repress');
       xhr.onload = function(ev) {
         var json_string = xhr.responseText;
         var repressions = JSON.parse(json_string);
