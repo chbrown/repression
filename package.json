@@ -1,0 +1,45 @@
+{
+  "name": "repression",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/chbrown/repression",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/chbrown/repression.git"
+  },
+  "bugs": {
+    "email": "Christopher Brown <io@henrian.com>",
+    "url": "http://github.com/chbrown/repression/issues"
+  },
+  "license": "MIT",
+  "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
+  "dependencies": {
+    "amulet": "*",
+    "async": "*",
+    "cookies": "git://github.com/chbrown/cookies.git",
+    "http-enhanced": "*",
+    "lodash": "*",
+    "loge": "*",
+    "optimist": "*",
+    "regex-router": "*",
+    "send": "*",
+    "sqlcmd": "*",
+    "streaming": "*",
+    "sv": "*"
+  },
+  "staticPattern": "static/lib/{file}",
+  "staticDependencies": {
+    "angular": "*",
+    "angular-ui-router": "*",
+    "lo-dash": "*",
+    "misc-js": "git://github.com/chbrown/misc-js.git",
+    "moment": "*",
+    "ng-storage": "*"
+  },
+  "config": {
+    "hostname": "127.0.0.1",
+    "port": 2404,
+    "database": "repression"
+  }
+}

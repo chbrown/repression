@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Repression</title>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link href="/static/site.css" rel="stylesheet" type="text/css" />
+  <script src="/static/lib/lodash.min.js"></script>
+  <script src="/static/lib/angular.min.js"></script>
+  <script src="/static/lib/ngStorage.min.js"></script>
+  <script src="/static/lib/angular-plugins.js"></script>
+  <script src="/static/app.js"></script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-20644777-7', 'auto');
+    ga('send', 'pageview');
+  </script>
+</head>
+<body ng-app="app">
+  <main ng-controller="indexCtrl">
+    <h1>Repression</h1>
+
+    <p>PNAS recently published <a href="http://www.pnas.org/content/111/24/8788.long">a paper by Adam Kramer et al</a> revealing that back in January 2012, Facebook made its users happier or sadder for a week. On purpose! How dare they? The uproar on the interwebs is deafening.
+    </p>
+
+    <p>You're probably like me. When I want to be manipulated, I will ask to be manipulated<sup>1</sup>, gosh darn it!</p>
+
+    <h2>So you want to be manipulated...</h2>
+
+    <p>
+      Step right in and sign up here. All you need is a Facebook account and a Chrome browser.
+    </p>
+
+    <label>
+      <div>
+        <b>Email</b>
+        <small>We'll email you at this address when the period of manipulation is over.</small>
+      </div>
+      <input type="email" ng-model="$storage.email" required style="width: 200px">
+    </label>
+    <label>
+      <div>
+        <b>Duration (in days)</b>
+        <small>How long should the experiment go on? Minimum: 2, Maximum: 31.</small>
+      </div>
+      <input type="number" min="2" max="31" ng-model="$storage.days" required>
+    </label>
+
+    <p ng-if="$storage.email && $storage.days">
+      Download <a href="/repression.user.js?email={{$storage.email}}&expires={{expires.toISOString()}}">repression.user.js</a>
+    </p>
+    <p ng-if="!($storage.email && $storage.days)">
+      (You must enter a valid email address and number of days to download the user script.)
+    </p>
+
+    <p>
+      When you download the extension above, the system will flip a coin, sentencing you to be happy or sad for the duration of the experiment. On {{expires | date:"longDate"}}, we will email a survey to you at {{$storage.email || 'your email'}}, which will ask you to predict whether you have been happier or sadder than usual. Then we will reveal which side of the coin you actually got, and show you all the posts that you missed on Facebook.
+    </p>
+
+    <p>
+      Your browser will also probably warn you "Apps, extensions, and user scripts cannot be added from this website." But you can ignore that.
+    </p>
+
+    <h2>Installation</h2>
+    <ol>
+      <li>Open up Chrome, and go to the Extensions configuration page: <code>chrome://extensions</code> (this is under Chrome &rarr; Preferences, Extensions).</li>
+      <li>Find the <code>repression.user.js</code> file on your hard drive, and drag it over the Chrome window. You should see a message, "Drop to install".</li>
+      <li>Do it.</li>
+    </ol>
+  </main>
+
+  <footer>
+    <sup>1</sup>Actually I think it's quite likely that the analytics / user experience team at Facebook is snorting with derision, &ldquo;And they think <em>that</em> was bad.&rdquo; <!-- Seriously, I think by now with all the Snowden stuff it's pretty clear that you should stop thinking these huge conglomerate corporations (Google, Facebook, Twitter) are your friends. -->
+  </footer>
+</body>
