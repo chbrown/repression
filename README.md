@@ -1,35 +1,16 @@
 # repression
 
-References:
+**Install from github:**
+
+    git clone https://github.com/chbrown/repression.git
+    cd repression
+    npm install
+    npm start
+
+
+### References:
 
 * http://www.chromium.org/developers/design-documents/user-scripts
-
-
-## Installation
-
-**From npm:**
-
-```sh
-npm install repression
-```
-
-**Or github:**
-
-```sh
-git clone https://github.com/chbrown/repression.git
-cd repression
-npm install -g
-```
-
-**Import:**
-
-```js
-var repression = require('repression');
-```
-
-    "scripts": {
-      "postinstall": "... install"
-    }
 
 
 ## License
