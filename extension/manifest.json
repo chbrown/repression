@@ -2,14 +2,14 @@
   "manifest_version": 2,
 
   "name": "Facebook Repression",
-  "version": "0.0.4",
+  "version": "0.0.5",
 
   "short_name": "FB Repression",
   "description": "Represses some of your news feed items",
 
   "icons": {
     "32": "icons/facebook-repression-32.png",
-    "128": "facebook-repression-128.png"
+    "128": "icons/facebook-repression-128.png"
   },
 
   "content_scripts": [{
