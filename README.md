@@ -14,6 +14,8 @@
 * https://developer.chrome.com/webstore/inline_installation
 * https://developer.chrome.com/extensions/content_scripts
 * https://developer.chrome.com/extensions/declare_permissions
+* https://developer.chrome.com/extensions/manifest
+* https://chrome.google.com/webstore/developer/dashboard
 
 
 ## License
