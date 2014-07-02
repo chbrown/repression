@@ -11,21 +11,19 @@
   });
 
   window.addEventListener('message', function(ev) {
-    console.log('interface message', ev);
-    // ev.data is an array of {id: '_0_someElementId', text: 'Look, a kitten!'}
+    console.log('interface:message', ev);
+    // ev.data is an array of {
+    //   id: '_0_someElementId',
+    //   author: '',
+    //   content: 'Look, a kitten!'}
     var origin = ev.origin;
     if (Array.isArray(ev.data)) {
-      var data = ev.data.slice();
-      var strings = data.map(function(datum) {
-        return datum.text;
-      });
-
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/repression/repress');
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.setRequestHeader('x-username', query.username);
       xhr.onload = function(ev) {
-        console.log('xhr response', xhr.responseText);
+        console.log('interface:xhr.responseText', xhr.responseText);
         var json_string = xhr.responseText;
         var repressions = JSON.parse(json_string);
         for (var i = 0; i < repressions.length; i++) {
@@ -37,7 +35,10 @@
           }
         }
       };
-      xhr.send(JSON.stringify(strings));
+      xhr.send(JSON.stringify(ev.data));
+    }
+    else {
+      console.error('interface messages must be arrays')
     }
   }, false);
   </script>
