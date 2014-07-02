@@ -87,40 +87,67 @@ R.get(/^\/interface.html/, function(req, res, m) {
 
 /** POST /repress
 
-Given a JSON list of strings, determine which of them should be repressed.
+Given a JSON array of {author: String, text: String} objects, determine which
+of them should be repressed. Returns a list of bools exactly as long as the
+list of objects received.
 
 We don't need any fancy CORS since it'll be accessed only by the interface.html iframe.
 
 */
 R.post(/^\/repress/, function(req, res, m) {
-  // var repress_category = req.headers['x-repress'];
+  var username = req.headers['x-username'];
+  if (!username) res.die('You must supply a username via the "x-username" header');
+
   async.auto({
     data: function(callback) {
       req.readData(callback);
     },
-    users: function(callback) {
-      var username = req.headers['x-username'];
-      db.Select('users').whereEqual({username: username}).execute(callback);
+    user: function(callback) {
+      db.Select('users')
+      .whereEqual({username: username})
+      .execute(function(err, rows) {
+        if (err) return callback(err);
+
+        if (rows.length === 0) {
+          logger.info('no user could be found with the username "%s"; creating one', username);
+
+          var one_week_from_now = new Date(new Date().getTime() + (7 * 86400 * 1000));
+
+          db.Insert('users')
+          .set({
+            username: username,
+            repress: _.sample(['posemo', 'negemo']),
+            expires: one_week_from_now,
+          })
+          .execute(function(err, rows) {
+            if (err) return callback(err);
+
+            callback(null, rows[0]);
+          });
+        }
+        else {
+          callback(null, rows[0]);
+        }
+      });
     },
   }, function(err, payload) {
     if (err) return res.die(err);
     if (!Array.isArray(payload.data)) return res.die('/repress only accepts an array of strings');
-    if (payload.users.length === 0) return res.die('no user could be found with that username');
-
-    var user = payload.users[0];
+    // payload is an object: {data: ..., user: Object}
 
     var posts = []; // just the repressed ones
     var repressions = payload.data.map(function(datum) {
       // returns a list of booleans: whether or not to show the given post
-      var string = String(datum);
-      var matches = liwc.matches(string);
-      var match = matches[user.repress];
-      // logger.info('matching string: %j', matches);
+      var author = String(datum.author);
+      var content = String(datum.content);
+
+      var matches = liwc.matches(content);
+      var match = matches[payload.user.repress];
       if (match) {
         posts.push({
-          user_id: user.id,
-          // author: '',
-          content: string,
+          user_id: payload.user.id,
+          author: author,
+          content: content,
           match: match[0],
         });
         return true;
