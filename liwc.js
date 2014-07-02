@@ -1,5 +1,5 @@
 /*jslint node: true */
-var liwc_json = require('./liwc');
+var liwc_categories = require('./liwc-categories');
 
 var compile = function(tokens) {
   var matches = tokens.map(function(token) {
@@ -13,15 +13,22 @@ var compile = function(tokens) {
   return new RegExp('\\b(' + matches.join('|') + ')', 'i');
 };
 
-var posemo_re = compile(liwc_json.posemo);
-var negemo_re = compile(liwc_json.negemo);
+var posemo_re = compile(liwc_categories.posemo);
+var negemo_re = compile(liwc_categories.negemo);
 
-var match = exports.match = function(string) {
-  /** returns an object */
-  var matches = {};
-  if (string.match(posemo_re)) matches.posemo = 1;
-  if (string.match(negemo_re)) matches.negemo = 1;
-  return matches;
+// var match = exports.match = function(string) {
+//   var matches = {};
+//   if (string.match(posemo_re)) matches.posemo = 1;
+//   if (string.match(negemo_re)) matches.negemo = 1;
+//   return matches;
+// };
+
+var matches = exports.matches = function(string) {
+  /** returns an object with LIWC categories for keys */
+  return {
+    posemo: string.match(posemo_re),
+    negemo: string.match(negemo_re),
+  };
 };
 
 if (require.main === module) {

@@ -22,9 +22,8 @@
 
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/repression/repress');
-      xhr.setRequestHeader('X-UserID', query.user_id);
-      xhr.setRequestHeader('X-Repress', query.repress);
       xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('x-username', query.username);
       xhr.onload = function(ev) {
         console.log('xhr response', xhr.responseText);
         var json_string = xhr.responseText;

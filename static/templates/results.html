@@ -1,0 +1,25 @@
+<main ng-controller="resultsCtrl">
+  <label>
+    <div>
+      <b>Facebook username</b>
+    </div>
+    <input type="text" ng-model="$storage.username" required style="width: 200px">
+  </label>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Author</th>
+        <th>Post</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="post in posts track by $index">
+        <td ng-bind="post.author"></td>
+        <td ng-bind-html="post.html"></td>
+        <td ng-bind="post.created | date:'MMM d, y h:mm a'" class="nowrap"></td>
+      </tr>
+    </tbody>
+  </table>
+</main>
