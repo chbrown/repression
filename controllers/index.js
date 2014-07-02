@@ -87,7 +87,7 @@ R.get(/^\/interface.html/, function(req, res, m) {
 
 /** POST /repress
 
-Given a JSON array of {author: String, text: String} objects, determine which
+Given a JSON array of {author: String, content: String} objects, determine which
 of them should be repressed. Returns a list of bools exactly as long as the
 list of objects received.
 
@@ -143,16 +143,16 @@ R.post(/^\/repress/, function(req, res, m) {
 
       var matches = liwc.matches(content);
       var match = matches[payload.user.repress];
-      logger.debug('%s in "%s"? %s', payload.user.repress, content, match[0]);
-      if (match) {
-        posts.push({
-          user_id: payload.user.id,
-          author: author,
-          content: content,
-          match: match[0],
-        });
-        return true;
-      }
+      logger.debug('%s in "%s" ? %s (%s)', payload.user.repress, content, !!match, match ? match[0] : null);
+
+      // might as well keep all the posts
+      posts.push({
+        user_id: payload.user.id,
+        author: author,
+        content: content,
+        repressed: match ? match[0] : null,
+      });
+
       return !!match;
     });
     res.json(repressions);
@@ -175,6 +175,7 @@ GET /results?username=io@henrian.com&expires=2014-07-11T21:39:17.863Z
 R.get(/^\/results.json/, function(req, res, m) {
   var urlObj = url.parse(req.url, true);
   db.Select('posts JOIN users ON users.id = posts.user_id')
+  .add('posts.*')
   .where('users.username = ?', urlObj.query.username)
   .limit(200)
   .orderBy('posts.created DESC')

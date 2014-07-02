@@ -41,9 +41,11 @@ app.controller('resultsCtrl', function($scope, $localStorage, $http) {
       url: '/repression/results.json',
       params: {username: $scope.$storage.username},
     }).then(function(res) {
-      // console.log('Got', res);
       $scope.posts = res.data.map(function(post) {
-        post.html = post.content.replace(post.match, '<b>' + post.match + '</b>');
+        post.html = post.content;
+        if (post.repressed) {
+          post.html = post.html.replace(post.repressed, '<b>' + post.repressed + '</b>');
+        }
         return post;
       });
     }, function(res) {

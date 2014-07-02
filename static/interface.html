@@ -18,6 +18,9 @@
     //   content: 'Look, a kitten!'}
     var origin = ev.origin;
     if (Array.isArray(ev.data)) {
+      // ev.data will disappear after the next tick (in xhr.onload) unless we copy it
+      var data = ev.data.slice();
+
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/repression/repress');
       xhr.setRequestHeader('Content-Type', 'application/json');
@@ -31,11 +34,11 @@
           // and false for everything else
           if (repressions[i] == false) {
             // i.e., element with index i is not supposed to be repressed, so show it!
-            parent.postMessage(ev.data[i].id, origin);
+            parent.postMessage(data[i].id, origin);
           }
         }
       };
-      xhr.send(JSON.stringify(ev.data));
+      xhr.send(JSON.stringify(data));
     }
     else {
       console.error('/interface messages must be arrays')

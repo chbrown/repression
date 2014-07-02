@@ -9,6 +9,7 @@
   <table>
     <thead>
       <tr>
+        <th></th>
         <th>Author</th>
         <th>Post</th>
         <th>Date</th>
@@ -16,9 +17,11 @@
     </thead>
     <tbody>
       <tr ng-repeat="post in posts track by $index">
-        <td ng-bind="post.author"></td>
+        <td><span ng-if="post.repressed">&#x2717;</span></td>
+        <td ng-bind="post.author" class="nowrap"></td>
         <td ng-bind-html="post.html"></td>
         <td ng-bind="post.created | date:'MMM d, y h:mm a'" class="nowrap"></td>
+        <td ng-bind="post.author" class="nowrap"></td>
       </tr>
     </tbody>
   </table>

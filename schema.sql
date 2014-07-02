@@ -17,7 +17,7 @@ CREATE TABLE posts (
 
   author TEXT,
   content TEXT NOT NULL,
-  match TEXT NOT NULL,
+  repressed TEXT,
 
   created TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp NOT NULL
 );
