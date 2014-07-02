@@ -31,14 +31,14 @@
           // and false for everything else
           if (repressions[i] == false) {
             // i.e., element with index i is not supposed to be repressed, so show it!
-            parent.postMessage(data[i].id, origin);
+            parent.postMessage(ev.data[i].id, origin);
           }
         }
       };
       xhr.send(JSON.stringify(ev.data));
     }
     else {
-      console.error('interface messages must be arrays')
+      console.error('/interface messages must be arrays')
     }
   }, false);
   </script>

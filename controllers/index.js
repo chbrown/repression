@@ -143,6 +143,7 @@ R.post(/^\/repress/, function(req, res, m) {
 
       var matches = liwc.matches(content);
       var match = matches[payload.user.repress];
+      logger.debug('%s in "%s"? %s', payload.user.repress, content, match[0]);
       if (match) {
         posts.push({
           user_id: payload.user.id,
