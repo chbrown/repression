@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+
+  "name": "Facebook Repression",
+  "description": "Represses some of your news feed items",
+  "version": "0.0.4",
+
+  "icons": {
+    "32": "icons/facebook-repression-32.png"
+  },
+
+  "content_scripts": [{
+    "js": ["feed-content.js"],
+    "css": ["feed-content.css"],
+    "matches": ["http://www.facebook.com/", "https://www.facebook.com/"],
+    "run_at": "document_start"
+  }],
+
+  "permissions": [
+    "https://www.facebook.com/",
+    "http://www.facebook.com/"
+  ],
+
+  "offline_enabled": false
+}
