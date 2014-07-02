@@ -11,14 +11,6 @@
 var config = CONFIG_JSON;
 // config will look something like {"id":1,"email":"io@henrian.com","repress":"negemo","expires":"2014-07-11T21:39:17.863Z","created":"2014-06-29T21:49:49.810Z"};
 
-var create_iframe = function(iframe_id, iframe_url) {
-  // var iframe = document.getElementById(iframe_id);
-  var iframe = document.createElement('iframe');
-  iframe.id = iframe_id;
-  iframe.setAttribute('src', iframe_url);
-  document.body.appendChild(iframe);
-  return iframe;
-};
 
 var find = function(selector) {
   var nodeList = document.querySelectorAll(selector);
@@ -35,46 +27,81 @@ var nearestAncestor = function(el, className) {
   return null;
 };
 
-var iframe_id = 'computationalx_interface';
-var search = '?user_id=' + config.id + '&repress=' + config.repress;
-var iframe_url = 'https://computationalx.com/repression/interface.html' + search;
-var iframe = create_iframe(iframe_id, iframe_url);
-window.iframe = iframe;
 
-window.refresh = function() {
-  var posts = []; // array of {id: '_0_someElementId', text: 'Look, a kitten!'}
-
-  var userContents = document.querySelectorAll('.userContent');
-  for (var i = 0, userContent; (userContent = userContents[i]); i++) {
-    var text = userContent.textContent;
-    if (text) {
-      var container = nearestAncestor(userContent, 'mbm');
-      container.style.visibility = 'hidden';
-      // console.log('container=%s, text=%s', container.id, 'it', userContent.innerText, 'tc', userContent.textContent, 'ih', userContent.innerHTML);
-      posts.push({id: container.id, text: text});
-    }
-  }
-
-  // we have to wait a second or the iframe will pretend to have http://facebook.com as the origin
-  // for some reason, even 100 or 200 ms waits are too early
-  if (posts.length) {
-    setTimeout(function() {
-      console.log('sending message to child', posts);
-      iframe.contentWindow.postMessage(posts, 'https://computationalx.com');
-    }, 500);
-  }
-};
-refresh();
-
-// the messages that the userscript will receive are simple: just IDs.
+// the messages that the userscript will receive are simple: just IDs of elements to reveal.
 window.addEventListener('message', function(ev) {
   console.log('userscript got message', ev);
-  if (ev.origin == 'https://computationalx.com') {
+  if (ev.origin == 'https://www.computationalx.com') {
     document.getElementById(ev.data).style.visibility = 'visible';
   }
 }, false);
 
-// iframe.contentWindow.postMessage([{id: 89, text: 'hate that'}, {id: 100, text: 'love those'}], 'https://computationalx.com');
+var initialize = function() {
+  var iframe = document.createElement('iframe');
+  iframe.setAttribute('src', 'https://www.computationalx.com/repression/interface.html?user_id=' + config.id + '&repress=' + config.repress);
+  iframe.id = 'repression_frame';
+  document.body.appendChild(iframe);
+  return iframe;
+};
+window.repression_frame = initialize();
+
+var repressNewUserContent = function() {
+  var posts = []; // array of {id: '_0_someElementId', text: 'Look, a kitten!'}
+
+  // var userContents = document.querySelectorAll('.userContent');
+  var userContents = document.getElementsByClassName('userContent');
+
+  for (var i = 0, userContent; (userContent = userContents[i]); i++) {
+    var text = userContent.textContent;
+    userContent.classList.remove('userContent');
+    if (text) {
+      var container = nearestAncestor(userContent, 'mbm');
+      container.style.visibility = 'hidden';
+      // console.log('container', container.id, 'ih', userContent.innerHTML);
+      posts.push({id: container.id, text: text});
+    }
+  }
+
+  // we have to wait a second or the iframe will pretend to have
+  // http://facebook.com as the origin for some reason, even 100
+  // or 200 ms waits are too early
+  if (posts.length) {
+    setTimeout(function() {
+      console.log('sending message to child', posts);
+      window.repression_frame.contentWindow.postMessage(posts, 'https://www.computationalx.com');
+    }, 500);
+  }
+};
+
+// console.log('repression userscript once', window.location.toString());
+
+var repeatUntilTrue = function(callback) {
+  (function loop() {
+    if (!callback()) {
+      window.requestAnimationFrame(loop);
+    }
+  })();
+};
+var initializeMutationObserver = function() {
+  var target = document.getElementById('contentArea');
+  console.log('initializeMutationObserver', target);
+  if (target) {
+    new MutationObserver(function(mutations, observer) {
+      window.requestAnimationFrame(repressNewUserContent);
+    }).observe(target, {
+      childList: true,
+      subtree: true,
+    });
+    return true;
+  }
+  else {
+    return false;
+  }
+};
+repeatUntilTrue(initializeMutationObserver);
+
+// var test = [{id: 89, text: 'hate that'}, {id: 100, text: 'love those'}];
+// iframe.contentWindow.postMessage(test, 'https://www.computationalx.com');
 
 
 // var user_contents = find('.userContent');
