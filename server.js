@@ -20,11 +20,10 @@ db.initializeDatabase(schema_sql, function(err) {
 // start server
 var root_controller = require('./controllers');
 http.createServer(function(req, res) {
-  // logger.info('%s %s', req.method, req.url);
 
   var started = Date.now();
   res.on('finish', function() {
-    logger.debug('%s %s [%dms]', req.method, req.url, Date.now() - started);
+    logger.debug('%s %s [%dms] (pid=%d)', req.method, req.url, Date.now() - started, process.pid);
   });
 
   root_controller(req, res);
