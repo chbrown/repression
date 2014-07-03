@@ -195,7 +195,7 @@ R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
       query.add('COUNT(id)').execute(callback);
     },
     posts: function(callback) {
-      query.orderBy('created DESC').execute(callback);
+      query.orderBy('created DESC').limit(200).execute(callback);
     },
   }, function(err, payload) {
     if (err) return res.die(err);
