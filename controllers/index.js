@@ -175,7 +175,7 @@ GET /users.json?username=mark.zuckerberg
 R.get(/^\/users.json/, function(req, res) {
   var urlObj = url.parse(req.url, true);
   db.Select('users')
-  .whereEqual({username: urlObj.query.username})
+  .whereEqual({username: urlObj.query.username || null})
   .limit(1)
   .execute(function(err, rows) {
     if (err) return res.die(err);
