@@ -33,23 +33,39 @@ app.controller('installCtrl', function($scope, $localStorage) {
   });
 });
 
-app.controller('resultsCtrl', function($scope, $localStorage, $http) {
+app.controller('resultsCtrl', function($scope, $localStorage, $http, $q) {
   $scope.$storage = $localStorage.$default({days: 7});
 
-  $scope.$watch('$storage.username', function() {
+
+  var refresh = function() {
     $http({
-      url: '/repression/results.json',
+      url: '/repression/users.json',
       params: {username: $scope.$storage.username},
     }).then(function(res) {
-      $scope.posts = res.data.map(function(post) {
-        post.html = post.content;
-        if (post.repressed) {
-          post.html = post.html.replace(post.repressed, '<b>' + post.repressed + '</b>');
-        }
-        return post;
-      });
+      $scope.user = res.data[0];
+      return $scope.user ? $scope.user : $q.reject(new Error('No user found'));
     }, function(res) {
-      console.error('Error getting results');
+      return $q.reject(new Error(res.statusText));
+    }).then(function(user) {
+      return $http({
+        url: '/repression/users/' + user.id + '/posts.json',
+      }).then(function(res) {
+        $scope.total = res.data.count;
+        $scope.posts = res.data.posts.map(function(post) {
+          post.html = post.content;
+          if (post.repressed) {
+            post.html = post.html.replace(post.repressed, '<b>' + post.repressed + '</b>');
+          }
+          return post;
+        });
+      }, function(res) {
+        return $q.reject(res.statusText);
+      });
+    }, function(err) {
+      console.error(err);
     });
-  });
+  };
+
+  $scope.$watch('$storage.username', refresh);
+
 });

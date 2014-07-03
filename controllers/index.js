@@ -170,18 +170,36 @@ R.post(/^\/repress/, function(req, res, m) {
 /**
 For example:
 
-GET /results?username=io@henrian.com&expires=2014-07-11T21:39:17.863Z
+GET /users.json?username=mark.zuckerberg
 */
-R.get(/^\/results.json/, function(req, res, m) {
+R.get(/^\/users.json/, function(req, res) {
   var urlObj = url.parse(req.url, true);
-  db.Select('posts JOIN users ON users.id = posts.user_id')
-  .add('posts.*')
-  .where('users.username = ?', urlObj.query.username)
-  .limit(200)
-  .orderBy('posts.created DESC')
+  db.Select('users')
+  .whereEqual({username: urlObj.query.username})
+  .limit(1)
   .execute(function(err, rows) {
     if (err) return res.die(err);
     res.ngjson(rows);
+  });
+});
+
+/**
+For example:
+
+GET /users/1/posts.json
+*/
+R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
+  var query = db.Select('posts').whereEqual({user_id: m[1]});
+  async.auto({
+    count: function(callback) {
+      query.add('COUNT(id)').execute(callback);
+    },
+    posts: function(callback) {
+      query.orderBy('created DESC').execute(callback);
+    },
+  }, function(err, payload) {
+    if (err) return res.die(err);
+    res.json({count: payload.count[0].count, posts: payload.posts});
   });
 });
 

@@ -5,4 +5,6 @@ footer{margin:50px auto}
 input{margin:0}
 label{display:block;margin:10px 0}
 table{border-collapse:collapse}
+table th{text-align:left}
 table td{font-size:90%;vertical-align:top;padding:3px 10px 2px 1px;border-top:1px solid #CCC}
+table tr.repressed .check:after{content:'\2717'}

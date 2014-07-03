@@ -28,11 +28,19 @@ label {
 
 table {
   border-collapse: collapse;
+  th {
+    text-align: left;
+  }
   td {
     font-size: 90%;
     vertical-align: top;
     padding: 3px 10px 2px 1px;
     border-top: 1px solid #CCC;
+  }
+  tr.repressed {
+    .check:after {
+      content: '\2717'; // Unicode Character 'BALLOT X' (U+2717)
+    }
   }
 }
 

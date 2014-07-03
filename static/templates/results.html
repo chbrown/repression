@@ -6,6 +6,15 @@
     <input type="text" ng-model="$storage.username" required style="width: 200px">
   </label>
 
+  <h3>User[{{user.id}}]</h3>
+  <ul>
+    <li>Username: {{user.username}}</li>
+    <li>Repress: {{user.repress}}</li>
+    <li>Created: {{user.created | date:'MMM d, y h:mm a'}}</li>
+    <li>Expires: {{user.expires | date:'MMM d, y h:mm a'}}</li>
+  </ul>
+
+  <h3>{{posts.length}} most recent posts (out of {{total}} total)</h3>
   <table>
     <thead>
       <tr>
@@ -16,12 +25,11 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="post in posts track by $index">
-        <td><span ng-if="post.repressed">&#x2717;</span></td>
+      <tr ng-repeat="post in posts track by $index" ng-class="{repressed: post.repressed}">
+        <td class="check"></td>
         <td ng-bind="post.author" class="nowrap"></td>
         <td ng-bind-html="post.html"></td>
         <td ng-bind="post.created | date:'MMM d, y h:mm a'" class="nowrap"></td>
-        <td ng-bind="post.author" class="nowrap"></td>
       </tr>
     </tbody>
   </table>

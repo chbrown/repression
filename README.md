@@ -11,6 +11,7 @@
 ### References:
 
 * http://www.chromium.org/developers/design-documents/user-scripts
+* https://developer.chrome.com/webstore/faq
 * https://developer.chrome.com/webstore/inline_installation
 * https://developer.chrome.com/extensions/content_scripts
 * https://developer.chrome.com/extensions/declare_permissions
