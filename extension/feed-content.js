@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   // get username from nav bar
   var timeline_anchor = document.querySelector('.navLink[title=Timeline]');
   window.username = timeline_anchor.pathname.slice(1); // slice off the slash
-  console.log('username = %s', window.username);
+  // console.log('username = %s', window.username);
 
   // add iframe
   var iframe = document.createElement('iframe');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   // get mutation observation target
   var target = document.getElementById('contentArea');
   window.repression_frame.addEventListener('load', function() {
-    console.log('iframe ready; watching for changes:', target);
+    // console.log('iframe ready; watching for changes:', target);
     new MutationObserver(function(mutations, observer) {
       window.requestAnimationFrame(repressNewUserContent);
     }).observe(target, {
@@ -32,20 +32,22 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
 });
 
+var showElementById = function(element_id) {
+  var el = document.getElementById(element_id);
+  if (el) {
+    el.style.display = 'block';
+  }
+};
+
 window.addEventListener('message', function(ev) {
   // the messages that the userscript will receive are simple: just IDs of elements to reveal.
-  // console.log('received message from "%s"', ev.origin);
   if (ev.origin == repression_origin) {
-    // console.log('revealing element with id = "%s"', ev.data, ev);
-    var post_container = document.getElementById(ev.data);
-    if (post_container) {
-      post_container.style.display = 'block';
-    }
+    showElementById(ev.data);
   }
 }, false);
 
 var repressNewUserContent = function() {
-  var posts = []; // array of {id: '_0_someElementId', text: 'Look, a kitten!'}
+  var posts = []; // array of {id: '_0_someElementId', content: 'Look, a kitten!'} objects
 
   // .mbm denotes the container level
   var post_containers = document.querySelectorAll('._5pcb .mbm:not(.repressed)');
@@ -56,18 +58,19 @@ var repressNewUserContent = function() {
 
     // find the actual text content of the post
     var content_el = post_container.querySelector('.userContent');
-    // TODO: don't even send off empty posts
     var content = content_el ? content_el.textContent : '';
+    if (content) {
+      // only send off non-empty posts
+      var author_el = post_container.querySelector('.fwb'); // .profileLink doesn't always catch it
+      var author = author_el ? author_el.textContent : '';
 
-    var author_el = post_container.querySelector('.fwb'); // .profileLink doesn't always catch it
-    var author = author_el ? author_el.textContent : '';
-
-    posts.push({id: post_container.id, content: content, author: author});
+      posts.push({id: post_container.id, content: content, author: author});
+    }
+    else {
+      showElementById(post_container.id);
+    }
   }
 
-  // we have to wait a second or the iframe will pretend to have
-  // http://facebook.com as the origin for some reason, even 100
-  // or 200 ms waits are too early
   if (posts.length) {
     window.repression_frame.contentWindow.postMessage(posts, repression_origin);
   }

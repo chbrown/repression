@@ -143,7 +143,7 @@ R.post(/^\/repress/, function(req, res, m) {
 
       var matches = liwc.matches(content);
       var match = matches[payload.user.repress];
-      logger.debug('%s in "%s" ? %s (%s)', payload.user.repress, content, !!match, match ? match[0] : null);
+      // logger.debug('%s in "%s" ? %s (%s)', payload.user.repress, content, !!match, match ? match[0] : null);
 
       // might as well keep all the posts
       posts.push({
@@ -157,11 +157,13 @@ R.post(/^\/repress/, function(req, res, m) {
     });
     res.json(repressions);
 
-    // to do this will a single INSERT () VALUES (), (), (), ...; command
+    // to do: this with a single INSERT () VALUES (), (), (), ...; command
+    var started = Date.now();
     async.each(posts, function(post, callback) {
       db.Insert('posts').set(post).execute(callback);
     }, function(err) {
       if (err) logger.error(err);
+      logger.debug('inserting posts N=%d [%dms] (pid=%d)', posts.length, Date.now() - started, process.pid);
     });
   });
 });

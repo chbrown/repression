@@ -10,8 +10,13 @@
     query[parts[0]] = parts[1];
   });
 
+  function parseJSON(string, fail_value) {
+    try { return JSON.parse(string); }
+    catch (exc) { return fail_value; }
+  }
+
   window.addEventListener('message', function(ev) {
-    console.log('interface:message', ev);
+    // console.log('interface:message', ev);
     // ev.data is an array of {
     //   id: '_0_someElementId',
     //   author: '',
@@ -26,9 +31,8 @@
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.setRequestHeader('x-username', query.username);
       xhr.onload = function(ev) {
-        console.log('interface:xhr.responseText', xhr.responseText);
-        var json_string = xhr.responseText;
-        var repressions = JSON.parse(json_string);
+        // console.log('interface:xhr.responseText', xhr.responseText);
+        var repressions = parseJSON(xhr.responseText, []);
         for (var i = 0; i < repressions.length; i++) {
           // the response will be true for the things to leave out
           // and false for everything else
@@ -41,7 +45,7 @@
       xhr.send(JSON.stringify(data));
     }
     else {
-      console.error('/interface messages must be arrays')
+      // throw new Error('/interface messages must be arrays');
     }
   }, false);
   </script>
