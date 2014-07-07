@@ -72,6 +72,18 @@ GET /repression.user.js?email=io@henrian.com&expires=2014-07-11T21:39:17.863Z
 //   });
 // });
 
+var createUser = function(username, callback) {
+  var one_week_from_now = new Date(new Date().getTime() + (7 * 86400 * 1000));
+  db.Insert('users')
+  .set({
+    username: username,
+    repress: _.sample(['posemo', 'negemo']),
+    expires: one_week_from_now,
+  })
+  .execute(callback);
+};
+
+
 /** GET /interface.html
 
 This is the CORS enabler, and communicates with the userscript
@@ -79,6 +91,22 @@ sitting on the Facebook homepage via window.postMessage between the iframe,
 which loaded interface.html, and the iframe's parent page, Facebook.
 */
 R.get(/^\/interface.html/, function(req, res, m) {
+  var urlObj = url.parse(req.url, true);
+  var username = urlObj.query.username;
+  if (!username) res.die('You must supply a username via "?username=" querystring');
+
+  db.Select('users')
+  .whereEqual({username: username})
+  .execute(function(err, rows) {
+    if (err) return res.die(err);
+
+    if (rows.length === 0) {
+      createUser(username, function(err) {
+        if (err) logger.error('Error creating user; %s', err.toString());
+      });
+    }
+  });
+
   send(req, 'interface.html').root(static_root).on('error', function(err) {
     res.status(err.status || 500).die('static error: ' + err.message);
   }).pipe(res);
@@ -98,73 +126,63 @@ R.post(/^\/repress/, function(req, res, m) {
   var username = req.headers['x-username'];
   if (!username) res.die('You must supply a username via the "x-username" header');
 
-  async.auto({
-    data: function(callback) {
-      req.readData(callback);
-    },
-    user: function(callback) {
-      db.Select('users')
-      .whereEqual({username: username})
-      .execute(function(err, rows) {
-        if (err) return callback(err);
-
-        if (rows.length === 0) {
-          logger.info('no user could be found with the username "%s"; creating one', username);
-
-          var one_week_from_now = new Date(new Date().getTime() + (7 * 86400 * 1000));
-
-          db.Insert('users')
-          .set({
-            username: username,
-            repress: _.sample(['posemo', 'negemo']),
-            expires: one_week_from_now,
-          })
-          .execute(function(err, rows) {
-            if (err) return callback(err);
-
-            callback(null, rows[0]);
-          });
-        }
-        else {
-          callback(null, rows[0]);
-        }
-      });
-    },
-  }, function(err, payload) {
+  req.readData(function(err, data) {
     if (err) return res.die(err);
-    if (!Array.isArray(payload.data)) return res.die('/repress only accepts an array of strings');
+    if (!Array.isArray(data)) return res.die('/repress only accepts an array of strings');
+
+    db.Select('users')
+    .whereEqual({username: username})
+    .execute(function(err, rows) {
+      if (err) return res.die(err);
+
+      if (rows.length === 0) {
+        logger.info('no user could be found with the username "%s"; creating one and bailing out', username);
+        createUser(username, function(err) {
+          if (err) logger.error('Error creating user; %s', err.toString());
+        });
+
+        var dummy_repressions = data.map(function(datum) {
+          // just show them all:
+          return false;
+        });
+        res.json(dummy_repressions);
+      }
+      else {
+        var user = rows[0];
+
+        var posts = []; // just the repressed ones
+        var repressions = data.map(function(datum) {
+          // returns a list of booleans: whether to show the given post
+          var author = String(datum.author);
+          var content = String(datum.content);
+
+          var matches = liwc.matches(content);
+          var match = matches[user.repress];
+          // logger.debug('%s in "%s" ? %s (%s)', payload.user.repress, content, !!match, match ? match[0] : null);
+
+          // might as well keep all the posts
+          posts.push({
+            user_id: user.id,
+            author: author,
+            content: content,
+            repressed: match ? match[0] : null,
+          });
+
+          return !!match;
+        });
+        res.json(repressions);
+
+        // to do: this with a single INSERT () VALUES (), (), (), ...; command
+        var started = Date.now();
+        async.each(posts, function(post, callback) {
+          db.Insert('posts').set(post).execute(callback);
+        }, function(err) {
+          if (err) logger.error(err);
+          logger.debug('inserted posts N=%d [%dms] (pid=%d)', posts.length, Date.now() - started, process.pid);
+        });
+      }
+    });
     // payload is an object: {data: ..., user: Object}
-
-    var posts = []; // just the repressed ones
-    var repressions = payload.data.map(function(datum) {
-      // returns a list of booleans: whether or not to show the given post
-      var author = String(datum.author);
-      var content = String(datum.content);
-
-      var matches = liwc.matches(content);
-      var match = matches[payload.user.repress];
-      // logger.debug('%s in "%s" ? %s (%s)', payload.user.repress, content, !!match, match ? match[0] : null);
-
-      // might as well keep all the posts
-      posts.push({
-        user_id: payload.user.id,
-        author: author,
-        content: content,
-        repressed: match ? match[0] : null,
-      });
-
-      return !!match;
-    });
-    res.json(repressions);
-
-    // to do: this with a single INSERT () VALUES (), (), (), ...; command
-    var started = Date.now();
-    async.each(posts, function(post, callback) {
-      db.Insert('posts').set(post).execute(callback);
-    }, function(err) {
-      if (err) logger.error(err);
-      logger.debug('inserting posts N=%d [%dms] (pid=%d)', posts.length, Date.now() - started, process.pid);
-    });
   });
 });
 

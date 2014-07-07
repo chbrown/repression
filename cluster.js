@@ -29,6 +29,10 @@ cluster.on('exit', function(worker, code, signal) {
   // fork new worker to replace dead one
   cluster.fork();
 });
+cluster.on('listening', function(worker, address) {
+  logger.debug('cluster: worker[%d] listening %s @ %s:%s (pid=%d)', worker.id,
+    address.addressType, address.address, address.port, worker.process.pid);
+});
 
 // fork initial workers
 logger.info('Starting cluster with %d forks', argv.forks);
