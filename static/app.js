@@ -45,7 +45,7 @@ app.controller('installCtrl', function($scope, $localStorage) {
         });
       });
     } else {
-      alert('This extension only works in Chrome, please open this page in Chrome to install.');
+      $scope.install_result = 'This extension only works in Chrome, please open this page in Chrome to install.';
     }
 
   };
