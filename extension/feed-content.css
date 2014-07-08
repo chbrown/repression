@@ -1,5 +1,1 @@
-/* ._5pcb is used for to contain feed .mbm, unlike #substream_0 */
-._5pcb .mbm {
-  display: none;
-  /*opacity: 0.1;*/
-}
+._5pcb .mbm {display: none}
