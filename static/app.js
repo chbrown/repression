@@ -1,4 +1,4 @@
-/*jslint browser: true */ /*globals _, angular */
+/*jslint browser: true */ /*globals _, angular, chrome */
 
 var app = angular.module('app', [
   'ngSanitize',
@@ -25,17 +25,34 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
 
 
 app.controller('installCtrl', function($scope, $localStorage) {
-  $scope.$storage = $localStorage.$default({days: 7});
+  // one week from now:
+  $scope.expires = new Date(new Date().getTime() + (7 * 86400 * 1000));
+  var webstore_ID = 'hmfpcpkjkhfegmageccfkekcdbfdffdn';
 
-  $scope.$watch('$storage.days', function() {
-    var ms = parseInt($scope.$storage.days, 10) * 86400 * 1000;
-    $scope.expires = new Date(new Date().getTime() + ms);
-  });
+  $scope.chrome_webstore_url = document.querySelector('link[rel=chrome-webstore-item]').href;
+
+  $scope.install = function() {
+    console.log('Installing from url: %s', $scope.chrome_webstore_url);
+
+    if (typeof chrome !== 'undefined') {
+      chrome.webstore.install($scope.chrome_webstore_url, function() {
+        $scope.$apply(function() {
+          $scope.install_result = 'Successfully installed!';
+        });
+      }, function(err) {
+        $scope.$apply(function() {
+          $scope.install_result = 'Failed to install! ' + err.toString();
+        });
+      });
+    } else {
+      alert('This extension only works in Chrome, please open this page in Chrome to install.');
+    }
+
+  };
 });
 
 app.controller('resultsCtrl', function($scope, $localStorage, $http, $q) {
   $scope.$storage = $localStorage.$default({days: 7});
-
 
   var refresh = function() {
     $http({
