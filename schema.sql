@@ -10,6 +10,8 @@ CREATE TABLE users (
   created TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp NOT NULL
 );
 
+CREATE INDEX users_username_index ON users(username);
+
 CREATE TABLE posts (
   id SERIAL PRIMARY KEY,
 

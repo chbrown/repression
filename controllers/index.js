@@ -28,50 +28,6 @@ R.get(/^\/static\/([^?]+)(\?|$)/, function(req, res, m) {
   }).pipe(res);
 });
 
-/**
-For example:
-
-GET /repression.user.js?email=io@henrian.com&expires=2014-07-11T21:39:17.863Z
-*/
-// R.get(/^\/repression.user.js/, function(req, res, m) {
-//   var download = function(user) {
-//     // user has .email, .expires, and .repress properties
-//     var userscript_path = path.join(__dirname, '..', 'repression.user.js');
-//     fs.readFile(userscript_path, {encoding: 'utf8'}, function(err, userscript_template) {
-//       if (err) return res.die(err);
-
-//       var config_json = JSON.stringify(user);
-//       var userscript = userscript_template.replace('CONFIG_JSON', config_json);
-
-//       res.writeHead(200, {
-//         'Content-Type': 'text/plain',
-//         'Content-Disposition': 'attachment; filename=repression.user.js',
-//       });
-//       res.write(userscript);
-//       res.end();
-//     });
-//   };
-
-//   var urlObj = url.parse(req.url, true);
-//   db.Insert('users')
-//   .set({
-//     email: urlObj.query.email,
-//     expires: urlObj.query.expires,
-//     repress: _.sample(['posemo', 'negemo']),
-//   })
-//   .execute(function(err) {
-//     // ignore UNIQUE collisions
-//     if (err && err.code != '23505') return res.die('Error: ' + err.toString());
-
-//     db.Select('users')
-//     .whereEqual({email: urlObj.query.emaill})
-//     .execute(function(err, rows) {
-//       if (err) return res.die(err);
-//       download(rows[0]);
-//     });
-//   });
-// });
-
 var createUser = function(username, callback) {
   var one_week_from_now = new Date(new Date().getTime() + (7 * 86400 * 1000));
   db.Insert('users')
@@ -81,6 +37,8 @@ var createUser = function(username, callback) {
     expires: one_week_from_now,
   })
   .execute(callback);
+  // maybe ignore UNIQUE collisions?
+  // if (err && err.code != '23505') return res.die('Error: ' + err.toString());
 };
 
 
