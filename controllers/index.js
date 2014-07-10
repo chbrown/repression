@@ -144,13 +144,18 @@ R.post(/^\/repress/, function(req, res, m) {
   });
 });
 
+module.exports = R.route.bind(R);
+
+var admin_R = new Router(function(req, res) {
+  res.status(404).die('No resource found');
+});
 
 /**
 For example:
 
 GET /users.json?username=mark.zuckerberg
 */
-R.get(/^\/users.json/, function(req, res) {
+admin_R.get(/^\/users.json/, function(req, res) {
   var urlObj = url.parse(req.url, true);
   db.Select('users')
   .whereEqual({username: urlObj.query.username || null})
@@ -166,7 +171,7 @@ For example:
 
 GET /users/1/posts.json
 */
-R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
+admin_R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
   var query = db.Select('posts').whereEqual({user_id: m[1]});
   async.auto({
     count: function(callback) {
@@ -180,5 +185,3 @@ R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
     res.json({count: payload.count[0].count, posts: payload.posts});
   });
 });
-
-module.exports = R.route.bind(R);
