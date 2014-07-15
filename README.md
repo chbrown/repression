@@ -28,9 +28,9 @@ Or in cluster mode:
 Facebook obfuscates their CSS, but they don't try too hard, and it's not impossible to figure out.
 The notation below uses CSS selector syntax.
 
-* `.mbm` is the going rate for the highest ancestor that contains exactly one individual feed post.
-* There can be multiple `._5pcb` divs, which contain multiple `.mbm` divs
-* `#substream_0` is the container of `.mbm`'s at page-load, but new feed posts are not added inside it.
+* `._2l4l` is the going rate for the highest ancestor that contains exactly one individual feed post. I used `.mbm` previously but that knocked out messages, which wasn't cool.
+* There can be multiple `._5pcb` divs, which contain multiple `._2l4l` divs
+* `#substream_0` is the container of `._2l4l`'s at page-load, but new feed posts are not added inside it.
 * We watch for changes to `#contentArea`, which contains a lot of the page, but all we want with that watcher is a single common ancestor of all potential `._5pcb`'s.
 * `.userContent` is the container of original text within a feed post. It may not exist, or it may be totally empty; e.g., for photos.
 * `.navLink[title=Timeline]` will get the link to the user's personal profile page, which is how we capture their username.

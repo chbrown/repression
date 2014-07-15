@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Facebook Repression",
-  "version": "0.0.7",
+  "version": "0.0.8",
 
   "short_name": "FB Repression",
   "description": "Represses some of your news feed items",
@@ -15,7 +15,7 @@
   "content_scripts": [{
     "js": ["feed-content.js"],
     "css": ["feed-content.css"],
-    "matches": ["http://www.facebook.com/", "https://www.facebook.com/"],
+    "matches": ["http://www.facebook.com/*", "https://www.facebook.com/*"],
     "run_at": "document_start"
   }],
 
