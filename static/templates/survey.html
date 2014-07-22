@@ -1,0 +1,28 @@
+<main ng-controller="surveyCtrl" style="width: 600px">
+  <h3>Repression survey</h3>
+
+  <div>
+    Before you can see what emotion type was randomly selected to repress certain posts in your Facebook feed,
+    (and the posts that were repressed), you have to guess which one was randomly selected,
+    based on your sense of how Facebook has made you feel this past week.
+  </div>
+  <form ng-submit="submit($event)">
+    <div>
+      <label>
+        <input type="radio" name="repress" ng-model="repress" value="posemo" required> <span><b>Positive emotion words</b></span>
+      </label>
+    </div>
+    <div>
+      <label>
+        <input type="radio" name="repress" ng-model="repress" value="negemo" required> <span><b>Negative emotion words</b></span>
+      </label>
+    </div>
+
+    <button ng-disabled="submitted">Submit</button>
+
+    <div ng-if="completed">
+      <p>Thanks for completing the survey!</p>
+      <a href="/repression/results">Click here for your posts</a>
+    </div>
+  </form>
+</main>

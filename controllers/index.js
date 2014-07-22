@@ -20,7 +20,7 @@ var R = new Router(function(req, res) {
 });
 
 // expose other /static files
-R.get(/^\/static\/([^?]+)(\?|$)/, function(req, res, m) {
+R.get(/^\/repression\/static\/([^?]+)(\?|$)/, function(req, res, m) {
   send(req, m[1]).root(static_root).on('error', function(err) {
     res.status(err.status || 500).die('static error: ' + err.message);
   }).on('directory', function() {
@@ -41,14 +41,13 @@ var createUser = function(username, callback) {
   // if (err && err.code != '23505') return res.die('Error: ' + err.toString());
 };
 
-
-/** GET /interface.html
+/** GET /repression/interface.html
 
 This is the CORS enabler, and communicates with the userscript
 sitting on the Facebook homepage via window.postMessage between the iframe,
 which loaded interface.html, and the iframe's parent page, Facebook.
 */
-R.get(/^\/interface.html/, function(req, res, m) {
+R.get(/^\/repression\/interface.html/, function(req, res, m) {
   var urlObj = url.parse(req.url, true);
   var username = urlObj.query.username;
   if (!username) res.die('You must supply a username via "?username=" querystring');
@@ -80,7 +79,7 @@ list of objects received.
 We don't need any fancy CORS since it'll be accessed only by the interface.html iframe.
 
 */
-R.post(/^\/repress/, function(req, res, m) {
+R.post(/^\/repression\/repress/, function(req, res) {
   var username = req.headers['x-username'];
   if (!username) res.die('You must supply a username via the "x-username" header');
 
@@ -144,44 +143,58 @@ R.post(/^\/repress/, function(req, res, m) {
   });
 });
 
-module.exports = R.route.bind(R);
+/** Returns posts and details for the user matching the current access_token. */
+R.get(/^\/repression\/results.json$/, function(req, res) {
+  var access_token = req.cookies.get('access_token');
 
-var admin_R = new Router(function(req, res) {
-  res.status(404).die('No resource found');
-});
-
-/**
-For example:
-
-GET /users.json?username=mark.zuckerberg
-*/
-admin_R.get(/^\/users.json/, function(req, res) {
-  var urlObj = url.parse(req.url, true);
   db.Select('users')
-  .whereEqual({username: urlObj.query.username || null})
+  .whereEqual({access_token: access_token})
+  .where('access_token IS NOT NULL')
   .limit(1)
   .execute(function(err, rows) {
-    if (err) return res.die(err);
-    res.ngjson(rows);
+    if (err) return res.die('User access error: ' + err.toString());
+
+    var user = rows[0];
+    if (!user) return res.status(404).die('User not found');
+
+    var query = db.Select('posts').whereEqual({user_id: user.id});
+    async.auto({
+      count: function(callback) {
+        query.add('COUNT(id)').execute(callback);
+      },
+      posts: function(callback) {
+        query.orderBy('created DESC').limit(500).execute(callback);
+      },
+    }, function(err, payload) {
+      if (err) return res.die(err);
+      res.json({
+        user: user,
+        count: payload.count[0].count,
+        posts: payload.posts,
+      });
+    });
+  });
+});
+R.post(/^\/repression\/survey.json$/, function(req, res) {
+  var access_token = req.cookies.get('access_token');
+
+  req.readData(function(err, data) {
+    if (err) return res.die('Error parsing request: ' + err.toString());
+    db.Insert('surveys')
+    .set({
+      access_token: access_token,
+      repress: data.repress,
+    })
+    .execute(function(err, rows) {
+      if (err) return res.die('Error inserting response: ' + err.toString());
+
+      return res.text('Survey saved');
+    });
   });
 });
 
-/**
-For example:
 
-GET /users/1/posts.json
-*/
-admin_R.get(/^\/users\/(\d+)\/posts.json$/, function(req, res, m) {
-  var query = db.Select('posts').whereEqual({user_id: m[1]});
-  async.auto({
-    count: function(callback) {
-      query.add('COUNT(id)').execute(callback);
-    },
-    posts: function(callback) {
-      query.orderBy('created DESC').limit(200).execute(callback);
-    },
-  }, function(err, payload) {
-    if (err) return res.die(err);
-    res.json({count: payload.count[0].count, posts: payload.posts});
-  });
-});
+// the admin controller handles its own auth
+R.any(/^\/repression\/admin/, require('./admin'));
+
+module.exports = R.route.bind(R);

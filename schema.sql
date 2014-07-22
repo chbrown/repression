@@ -6,6 +6,8 @@ CREATE TABLE users (
   username TEXT UNIQUE NOT NULL,
   repress repress_type NOT NULL,
   expires TIMESTAMP WITH TIME ZONE NOT NULL,
+  access_token TEXT,
+  administrator BOOLEAN DEFAULT FALSE,
 
   created TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp NOT NULL
 );
@@ -20,6 +22,15 @@ CREATE TABLE posts (
   author TEXT,
   content TEXT NOT NULL,
   repressed TEXT,
+
+  created TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp NOT NULL
+);
+
+CREATE TABLE surveys (
+  id SERIAL PRIMARY KEY,
+
+  access_token TEXT,
+  repress TEXT,
 
   created TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp NOT NULL
 );

@@ -1,18 +1,13 @@
 <main ng-controller="resultsCtrl">
-  <label>
-    <div>
-      <b>Facebook username</b>
-    </div>
-    <input type="text" ng-model="$storage.username" required style="width: 200px">
-  </label>
-
-  <h3>User[{{user.id}}]</h3>
+  <h3>Facebook username: {{user.username}}</h3>
   <ul>
-    <li>Username: {{user.username}}</li>
-    <li>Repress: {{user.repress}}</li>
-    <li>Created: {{user.created | date:'MMM d, y h:mm a'}}</li>
-    <li>Expires: {{user.expires | date:'MMM d, y h:mm a'}}</li>
+    <li>Category that was repressed: <b>{{user.repress}}</b></li>
+    <li>First used: {{user.created | date:'MMM d, y h:mm a'}}</li>
   </ul>
+
+  <p>
+    &#x2717; indicates that the post was originally repressed from your feed.
+  </p>
 
   <h3>{{posts.length}} most recent posts (out of {{total}} total)</h3>
   <table>

@@ -1,0 +1,29 @@
+<main ng-controller="usersCtrl">
+  <h3>Users</h3>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Username</th>
+        <th></th>
+        <th></th>
+        <th>Repress</th>
+        <th># of Posts</th>
+        <th>Created</th>
+        <th>Expires</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="user in users">
+        <td>{{user.id}}</td>
+        <td>{{user.username}}</td>
+        <td><a href="/repression/survey?access_token={{user.access_token}}">survey</a></td>
+        <td><a href="/repression/results?access_token={{user.access_token}}">results</a></td>
+        <td>{{user.repress}}</td>
+        <td>{{user.total}}</td>
+        <td>{{user.created | date:'MMM d, y h:mm a'}}</td>
+        <td>{{user.expires | date:'MMM d, y h:mm a'}}</td>
+      </tr>
+    </tbody>
+  </table>
+</main>

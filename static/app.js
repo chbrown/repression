@@ -15,6 +15,14 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
       url: '/repression/install',
       templateUrl: '/repression/static/templates/install.html',
     })
+    .state('users', {
+      url: '/repression/users',
+      templateUrl: '/repression/static/templates/users.html',
+    })
+    .state('survey', {
+      url: '/repression/survey',
+      templateUrl: '/repression/static/templates/survey.html',
+    })
     .state('results', {
       url: '/repression/results',
       templateUrl: '/repression/static/templates/results.html',
@@ -51,38 +59,54 @@ app.controller('installCtrl', function($scope, $localStorage) {
   };
 });
 
-app.controller('resultsCtrl', function($scope, $localStorage, $http, $q) {
-  $scope.$storage = $localStorage.$default({days: 7});
-
+app.controller('resultsCtrl', function($scope, $http, $q) {
   var refresh = function() {
     $http({
-      url: '/repression/users.json',
-      params: {username: $scope.$storage.username},
+      url: '/repression/results.json',
     }).then(function(res) {
-      $scope.user = res.data[0];
-      return $scope.user ? $scope.user : $q.reject(new Error('No user found'));
+      $scope.user = res.data.user;
+      $scope.total = res.data.count;
+      $scope.posts = res.data.posts.map(function(post) {
+        post.html = post.content;
+        if (post.repressed) {
+          post.html = post.html.replace(post.repressed, '<b>' + post.repressed + '</b>');
+        }
+        return post;
+      });
     }, function(res) {
       return $q.reject(new Error(res.statusText));
-    }).then(function(user) {
-      return $http({
-        url: '/repression/users/' + user.id + '/posts.json',
-      }).then(function(res) {
-        $scope.total = res.data.count;
-        $scope.posts = res.data.posts.map(function(post) {
-          post.html = post.content;
-          if (post.repressed) {
-            post.html = post.html.replace(post.repressed, '<b>' + post.repressed + '</b>');
-          }
-          return post;
-        });
-      }, function(res) {
-        return $q.reject(res.statusText);
-      });
-    }, function(err) {
-      console.error(err);
     });
   };
 
   $scope.$watch('$storage.username', refresh);
+});
+
+app.controller('usersCtrl', function($scope, $http, $q) {
+  $http({
+    url: '/repression/admin/users.json',
+  }).then(function(res) {
+    $scope.users = res.data;
+  }, function(res) {
+    return $q.reject(new Error(res.statusText));
+  });
+});
+
+app.controller('surveyCtrl', function($scope, $http, $q) {
+  $scope.submit = function(ev) {
+    ev.preventDefault();
+
+    $scope.submitted = true;
+
+    $http({
+      method: 'POST',
+      url: '/repression/survey.json',
+      data: {repress: $scope.repress},
+    }).then(function(res) {
+      $scope.completed = true;
+      $scope.users = res.data;
+    }, function(res) {
+      alert(new Error(res.statusText).toString());
+    });
+  };
 
 });
