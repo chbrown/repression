@@ -24,7 +24,7 @@
     "optimist": "*",
     "regex-router": "*",
     "send": "*",
-    "sqlcmd": "*",
+    "sqlcmd": "~0.2.13",
     "streaming": "*",
     "sv": "*"
   },
